@@ -19,6 +19,7 @@ import { extname } from 'path';
 import * as Papa from 'papaparse';
 import { RoleGuard } from '../auth/role.guard';
 import { UserRole } from '../auth/user.entity/user.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('products')
 export class ProductController {
@@ -56,7 +57,7 @@ export class ProductController {
 
   // Get all products (Only Manager)
   @Get()
-  @UseGuards(new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
+  @UseGuards(AuthGuard('jwt'),new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
   async getAllProducts() {
     try {
       return this.productService.getAllProducts();
