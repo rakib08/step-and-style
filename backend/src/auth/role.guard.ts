@@ -12,7 +12,7 @@ export class RoleGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
-    const bearer = request.headers.authorization;
+    const bearer = request.headers.authorization;// 
 
     const token = bearer.split(" ")[1];
 

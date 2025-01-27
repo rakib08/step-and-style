@@ -24,6 +24,6 @@ export class AuthController {
       secure: true, // Set this to true in production with HTTPS
       maxAge: 3600000, // 1 hour
     });
-    return { message: 'Login successful' };
+    return { message: 'Login successful', token };
   }
 }

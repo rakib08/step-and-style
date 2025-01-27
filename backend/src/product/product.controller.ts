@@ -27,7 +27,7 @@ export class ProductController {
 
   // Add a new product (Only Manager)
   @Post('add')
-  @UseGuards(new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
+  @UseGuards(AuthGuard('jwt'), new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
   @UseInterceptors(
     FilesInterceptor('images', 5, {
       storage: diskStorage({
@@ -57,7 +57,7 @@ export class ProductController {
 
   // Get all products (Only Manager)
   @Get()
-  @UseGuards(AuthGuard('jwt'),new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
+  @UseGuards(AuthGuard('jwt'), new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
   async getAllProducts() {
     try {
       return this.productService.getAllProducts();
@@ -69,7 +69,7 @@ export class ProductController {
 
   // Get product by ID (Only Manager)
   @Get(':id')
-  @UseGuards(new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
+  @UseGuards(AuthGuard('jwt'), new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
   async getProductById(@Param('id', ParseIntPipe) id: number) {
     try {
       return this.productService.getProductById(id);
@@ -81,7 +81,7 @@ export class ProductController {
 
   // Update product (Only Manager)
   @Patch(':id')
-  @UseGuards(new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
+  @UseGuards(AuthGuard('jwt'), new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
   @UseInterceptors(
     FilesInterceptor('images', 5, {
       storage: diskStorage({
@@ -112,7 +112,7 @@ export class ProductController {
 
   // Delete product (Only Manager)
   @Delete(':id')
-  @UseGuards(new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
+  @UseGuards(AuthGuard('jwt'), new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
   async deleteProduct(@Param('id', ParseIntPipe) id: number) {
     try {
       return this.productService.deleteProduct(id);
@@ -124,7 +124,7 @@ export class ProductController {
 
   // Bulk upload products (Only Manager)
   @Post('bulk-upload')
-  @UseGuards(new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
+  @UseGuards(AuthGuard('jwt'), new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -138,25 +138,33 @@ export class ProductController {
   )
   async bulkUpload(@UploadedFile() file: Express.Multer.File) {
     try {
-      // Ensure file exists
       if (!file) {
         throw new Error('No file uploaded.');
       }
-
-      // Parse CSV content
       const fileContent = file.buffer.toString('utf-8');
       const parsedData = Papa.parse(fileContent, { header: true }).data;
-
-      // Validate parsed data
       if (!Array.isArray(parsedData) || parsedData.length === 0) {
         throw new Error('Invalid or empty file content.');
       }
-
-      // Call the product service for bulk upload
       return this.productService.bulkUpload(parsedData);
     } catch (error) {
       console.error('Error during bulk upload:', error.message);
       throw new Error('Error during bulk upload: ' + error.message);
+    }
+  }
+
+  // Update product pricing (Only Manager)
+  @Patch(':id/pricing')
+  @UseGuards(AuthGuard('jwt'), new RoleGuard(UserRole.MANAGER)) // Restrict to Manager
+  async updatePricing(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() pricingData: { price: number; salePrice?: number; wholesalePrice?: number },
+  ) {
+    try {
+      return this.productService.updatePricing(id, pricingData);
+    } catch (error) {
+      console.error('Error updating pricing:', error.message);
+      throw new Error('Error updating pricing: ' + error.message);
     }
   }
 }

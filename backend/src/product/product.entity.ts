@@ -18,7 +18,13 @@ export class Product {
   brand: string;
 
   @Column('decimal')
-  price: number;
+  price: number; // Regular price
+
+  @Column('decimal', { nullable: true })
+  salePrice: number; // Sale price
+
+  @Column('decimal', { nullable: true })
+  wholesalePrice: number; // Wholesale price
 
   @Column('int')
   quantity: number;

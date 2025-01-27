@@ -21,9 +21,12 @@ export class AuthService {
 
   async validateUser(username: string, password: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { username } });
+    // console.log('User Found:', user); // Debug user object
     if (user && (await bcrypt.compare(password, user.password))) {
+      // console.log('Password Match:', true); // Debug password comparison
       return user;
     }
+    // console.log('Password Match:', false); // Debug if password comparison fails
     throw new UnauthorizedException('Invalid credentials');
   }
 
