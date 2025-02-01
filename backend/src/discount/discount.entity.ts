@@ -21,7 +21,8 @@ export class Discount {
   @Column('timestamp')
   endDate: Date; // End of discount validity
 
-  @ManyToOne(() => Product, (product) => product.id, { nullable: true })
+  @ManyToOne(() => Product, (product) => product.id, { nullable: true, onDelete: "SET NULL"
+   })
   product: Product; // Apply to a specific product
 
   @Column({ nullable: true })

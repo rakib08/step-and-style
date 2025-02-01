@@ -28,7 +28,7 @@ import { Discount } from './discount/discount.entity';
     SeedModule,
     ProductModule,
     InventoryModule,
-    DiscountModule, // Import AuthModule once
+    DiscountModule,
   ],
 })
 export class AppModule {}

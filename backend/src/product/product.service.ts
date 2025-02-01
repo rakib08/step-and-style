@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { Product } from './product.entity';
 import { Discount } from '../discount/discount.entity';
+import { Inventory } from '../inventory/inventory.entity';
 
 @Injectable()
 export class ProductService {
@@ -11,12 +12,21 @@ export class ProductService {
     private productRepository: Repository<Product>,
     @InjectRepository(Discount)
     private discountRepository: Repository<Discount>,
+    @InjectRepository(Inventory)
+    private inventoryRepository: Repository<Inventory>,
   ) {}
 
   // Create a new product
   async createProduct(data: Partial<Product>, imagePaths: string[]) {
     const newProduct = this.productRepository.create({ ...data, images: imagePaths });
-    return this.productRepository.save(newProduct);
+    const product = await this.productRepository.save(newProduct);
+    const invetory =  this.inventoryRepository.create({
+      stock: product.quantity,
+      product: product,
+    });
+    await this.inventoryRepository.save(invetory);
+
+    return product;
   }
 
   // Get all products
@@ -60,7 +70,23 @@ export class ProductService {
   async updateProduct(id: number, data: Partial<Product>, imagePaths: string[]) {
     const product = await this.getProductById(id);
     const updatedProduct = Object.assign(product, data, { images: imagePaths });
-    return this.productRepository.save(updatedProduct);
+    const savedProduct = await this.productRepository.save(updatedProduct);
+    if (data.quantity !== undefined) {
+      const inventoryRecord = await this.inventoryRepository.findOne({
+        where: { product: { id } },
+      });
+  
+      if (inventoryRecord) {
+        inventoryRecord.stock = data.quantity;
+        await this.inventoryRepository.save(inventoryRecord);
+      }else {
+        const createMissingInventory = this.inventoryRepository.create({product, stock: data.quantity});
+        await this.inventoryRepository.save(createMissingInventory);
+      }
+    }
+  
+
+    return savedProduct;
   }
 
   // Delete a product

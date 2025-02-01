@@ -15,7 +15,7 @@ import {
 import { ProductService } from './product.service';
 import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+//import { extname } from 'path';
 import * as Papa from 'papaparse';
 import { RoleGuard } from '../auth/role.guard';
 import { UserRole } from '../auth/user.entity/user.entity';

@@ -19,7 +19,7 @@ export class AuthController {
   ) {
     const user = await this.authService.validateUser(body.username, body.password);
     const token = await this.authService.login(user);
-    res.cookie('Authentication', token.access_token, {
+    res.cookie('Authentication', token.token, {
       httpOnly: true,
       secure: true, // Set this to true in production with HTTPS
       maxAge: 3600000, // 1 hour

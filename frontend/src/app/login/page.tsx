@@ -13,15 +13,32 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+  
     try {
-      const response = await login({ username, password });
-      localStorage.setItem('token', response.token); // Save token
-      router.push('/products'); // Redirect on success
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      if (!res.ok) {
+        throw new Error('Invalid username or password');
+      }
+  
+      const data = await res.json();
+      console.log('Login Response:', data); // Debugging
+  
+      // FIX: Ensure only the raw JWT string is stored
+      localStorage.setItem('token', data.token.token);
+  
+      // Redirect to dashboard after login
+      router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      console.error('Login Error:', err.message);
+      setError(err.message || 'Something went wrong.');
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-500 to-indigo-600">
