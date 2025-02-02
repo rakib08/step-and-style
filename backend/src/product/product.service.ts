@@ -4,8 +4,6 @@ import { Repository, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { Product } from './product.entity';
 import { Discount } from '../discount/discount.entity';
 import { Inventory } from '../inventory/inventory.entity';
-import * as csvParser from 'csv-parser';
-import { Readable } from 'stream';
 
 @Injectable()
 export class ProductService {

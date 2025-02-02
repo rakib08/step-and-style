@@ -1,5 +1,5 @@
 export async function fetchProducts(page = 1, search = "", limit = 10) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = localStorage.getItem("token");
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/products?page=${page}&search=${search}&limit=${limit}`,
     {
@@ -20,7 +20,7 @@ export async function fetchProducts(page = 1, search = "", limit = 10) {
 
 // Fetch a single product by ID
 export async function fetchProductById(id: number) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = localStorage.getItem("token");
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
     method: "GET",
     headers: {
@@ -36,7 +36,7 @@ export async function fetchProductById(id: number) {
   return res.json();
 }
 
-// Add a new product
+// Add a new product (Supports image upload)
 export async function addProduct(productData: {
   name: string;
   description: string;
@@ -47,7 +47,7 @@ export async function addProduct(productData: {
   sku: string;
   images: File[];
 }) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = localStorage.getItem("token");
   const formData = new FormData();
 
   formData.append("name", productData.name);
@@ -58,6 +58,7 @@ export async function addProduct(productData: {
   formData.append("quantity", productData.quantity.toString());
   formData.append("sku", productData.sku);
 
+  // Append multiple images
   productData.images.forEach((image) => {
     formData.append("images", image);
   });
@@ -77,18 +78,21 @@ export async function addProduct(productData: {
   return res.json();
 }
 
-// Update an existing product
-export async function updateProduct(id: number, productData: {
-  name: string;
-  description: string;
-  category: string;
-  brand: string;
-  price: number;
-  quantity: number;
-  sku: string;
-  images: File[];
-}) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+// Update an existing product (Supports image upload)
+export async function updateProduct(
+  id: number,
+  productData: {
+    name: string;
+    description: string;
+    category: string;
+    brand: string;
+    price: number;
+    quantity: number;
+    sku: string;
+    images: File[];
+  }
+) {
+  const token = localStorage.getItem("token");
   const formData = new FormData();
 
   formData.append("name", productData.name);
@@ -120,7 +124,7 @@ export async function updateProduct(id: number, productData: {
 
 // Delete a product
 export async function deleteProduct(id: number) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = localStorage.getItem("token");
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`, {
     method: "DELETE",
     headers: {
@@ -130,7 +134,7 @@ export async function deleteProduct(id: number) {
   });
 
   if (!res.ok) {
-    console.log(res);
+    console.log(res) 
     throw new Error("Failed to delete product");
   }
 
@@ -139,7 +143,7 @@ export async function deleteProduct(id: number) {
 
 // Bulk upload products using CSV
 export async function bulkUploadProducts(csvFile: File) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = localStorage.getItem("token");
   const formData = new FormData();
   formData.append("file", csvFile);
 
@@ -159,8 +163,11 @@ export async function bulkUploadProducts(csvFile: File) {
 }
 
 // Apply discount to a product
-export async function applyProductDiscount(id: number, pricingData: { salePrice?: number; wholesalePrice?: number }) {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+export async function applyProductDiscount(
+  id: number,
+  pricingData: { salePrice?: number; wholesalePrice?: number }
+) {
+  const token = localStorage.getItem("token");
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}/pricing`, {
     method: "PATCH",
     headers: {
