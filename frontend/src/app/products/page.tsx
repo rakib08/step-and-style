@@ -128,7 +128,7 @@ export default function ProductManagement() {
       closeModal();
       loadProducts();
     } catch (err) {
-      alert("Failed to save product");
+      alert("This Product Is Already Exists!");
     }
   };
 
@@ -164,7 +164,7 @@ export default function ProductManagement() {
                 <th className="p-3">Name</th>
                 <th className="p-3">Category</th>
                 <th className="p-3">Price</th>
-                <th className="p-3">Quantity</th>
+                <th className="p-3">SKU</th> 
                 <th className="p-3">Actions</th>
               </tr>
             </thead>
@@ -174,7 +174,7 @@ export default function ProductManagement() {
                   <td className="p-3">{product.name}</td>
                   <td className="p-3">{product.category}</td>
                   <td className="p-3">${product.price}</td>
-                  <td className="p-3">{product.quantity}</td>
+                  <td className="p-3">{product.sku}</td>
                   <td className="p-3 flex space-x-2">
                     <button
                       className="bg-yellow-500 text-white px-3 py-1 rounded-lg shadow hover:bg-yellow-600"

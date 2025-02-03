@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchInventory, adjustStock, reorderStock, downloadReport } from '../api/inventory';
-import { FaSearch, FaEdit, FaSync, FaDownload } from 'react-icons/fa';
+import { FaSearch, FaSync, FaDownload } from 'react-icons/fa';
+import Papa from 'papaparse';
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState<any[]>([]);
@@ -72,41 +73,51 @@ export default function InventoryPage() {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
+  
+      // 📌 Fetch inventory data from the API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventory`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      await downloadReport(token);
-      alert('Report downloaded!');
-    } catch (err) {
-      console.error('Report Download Failed:', err);
-    }
-  };
 
-// const handleDownloadReport = async () => {
-//     try {
-//       const token = localStorage.getItem('token');
-//       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/inventory/report`, {
-//         method: 'GET',
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
+      if (!response.ok) {
+        throw new Error('Failed to fetch inventory report');
+      }
   
-//       if (!response.ok) {
-//         throw new Error('Failed to fetch report');
-//       }
+      const data = await response.json(); // 📌 Convert response to JSON
+
+      const csvData = data.map((item: any) => ({
+        ID: item.id,
+        Product_Name: item.product.name,
+        Category: item.product.category,
+        Brand: item.product.brand,
+        SKU: item.product.sku,
+        Price: item.product.price,
+        Stock: item.stock,
+        Reorder_Level: item.reorderLevel,
+        Last_Updated: item.lastUpdated,
+      }));
+
+      // 📌 Convert data to CSV format
+    const csv = Papa.unparse(csvData);
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Inventory_Report.csv'; // 📌 Set file name
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (error) {
+    console.error('Error downloading report:', error);
+  }
+};
   
-//       const blob = await response.blob();
-//       const url = window.URL.createObjectURL(blob);
-//       const a = document.createElement('a');
-//       a.href = url;
-//       a.download = 'Inventory_Report.pdf'; // Change file format as needed
-//       document.body.appendChild(a);
-//       a.click();
-//       a.remove();
-//     } catch (error) {
-//       console.error('Error downloading report:', error);
-//     }
-//   };
-  
+
 
   const filteredInventory = inventory.filter((item) =>
     item.product.name.toLowerCase().includes(search.toLowerCase())
